@@ -450,6 +450,28 @@ def insert_household_category(db: DatabaseConnection, household_id: int, categor
         )
 
 
+def create_household_record(db: DatabaseConnection, name: str, slug: str, owner_user_id: int) -> int:
+    if db.engine == "postgres":
+        row = db.execute(
+            """
+            INSERT INTO households (name, slug, owner_user_id, created_at)
+            VALUES (?, ?, ?, ?)
+            RETURNING id
+            """,
+            (name, slug, owner_user_id, now_iso()),
+        ).fetchone()
+        return row["id"]
+
+    cursor = db.execute(
+        """
+        INSERT INTO households (name, slug, owner_user_id, created_at)
+        VALUES (?, ?, ?, ?)
+        """,
+        (name, slug, owner_user_id, now_iso()),
+    )
+    return cursor.lastrowid
+
+
 def ensure_recurring_bills(household_id: int) -> None:
     db = get_db()
     today = datetime.utcnow().date().isoformat()
@@ -695,14 +717,7 @@ def onboarding():
             if slug_exists:
                 flash("Bu kisa adres kullaniliyor.", "error")
             else:
-                cursor = db.execute(
-                    """
-                    INSERT INTO households (name, slug, owner_user_id, created_at)
-                    VALUES (?, ?, ?, ?)
-                    """,
-                    (name, slug, user["id"], now_iso()),
-                )
-                household_id = cursor.lastrowid
+                household_id = create_household_record(db, name, slug, user["id"])
                 db.execute(
                     """
                     INSERT INTO household_members (household_id, user_id, role, joined_at)
