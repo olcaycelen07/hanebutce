@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: hanebutce-web
+    runtime: python
+    rootDir: webapp
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: ENABLE_HSTS
+        value: "true"
+      - key: FLASK_DEBUG
+        value: "false"
+
+databases:
+  - name: hanebutce-postgres

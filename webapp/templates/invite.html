@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Davet | HaneButce{% endblock %}
+
+{% block content %}
+  <section class="auth-box">
+    <div>
+      <p class="eyebrow">Aile daveti</p>
+      <h2>{{ invitation["household_name"] }} ailesine katil</h2>
+      <p class="lead">
+        Bu davet <strong>{{ invitation["email"] }}</strong> adresi icin olusturuldu.
+        Rol: <strong>{{ invitation["role"]|upper }}</strong>
+      </p>
+      <div class="invite-highlight">
+        <strong>Bu ekranda ne olacak?</strong>
+        <p>
+          Daveti kabul ettiginde aile paneline dahil olursun ve sana verilen role gore ortak
+          butceyi yonetmeye baslayabilirsin.
+        </p>
+      </div>
+    </div>
+
+    <div class="form-card single-form">
+      {% if user %}
+        <p class="lead">Su an giris yapan hesap: {{ user["email"] }}</p>
+        {% if invitation["status"] != "pending" %}
+          <p class="helper-copy">Bu davet daha once kullanilmis.</p>
+        {% elif user["email"].lower() != invitation["email"].lower() %}
+          <p class="helper-copy">
+            Bu davet farkli bir e-posta icin olusturulmus. Dogru hesapla giris yapman gerekiyor.
+          </p>
+        {% else %}
+          <form method="post" class="single-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+            <button type="submit">Daveti kabul et</button>
+          </form>
+        {% endif %}
+      {% else %}
+        <p class="lead">Daveti kabul etmek icin once giris yapman gerekiyor.</p>
+        <a class="ghost-link ghost-link-light" href="{{ url_for('login') }}">Giris sayfasina git</a>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

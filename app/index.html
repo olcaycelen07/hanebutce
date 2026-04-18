@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HaneButce</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">Ticari MVP</p>
+          <h1>HaneButce</h1>
+          <p class="sidebar-copy">
+            Aile uyeleriyle ortak gelir, gider ve odeme takibini tek yerden yonetin.
+          </p>
+        </div>
+
+        <nav class="menu">
+          <button class="menu-item active" data-section="dashboard">Panel</button>
+          <button class="menu-item" data-section="transactions">Gelir / Gider</button>
+          <button class="menu-item" data-section="payments">Odemeler</button>
+          <button class="menu-item" data-section="family">Aile Uyeleri</button>
+        </nav>
+
+        <div class="sidebar-card">
+          <p class="card-label">Plan</p>
+          <strong>Premium Aile</strong>
+          <span>Hatirlatmalar ve coklu uye aktif</span>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <div>
+            <p class="eyebrow">Ornek giris</p>
+            <h2>Ev butceni anlik yonet, odemeleri kacirma.</h2>
+            <p>
+              Bu demo, kayit, aile yapisi ve finans akisini gostermek icin hazirlandi.
+            </p>
+          </div>
+
+          <div class="auth-card">
+            <span class="pill">Mail ile uye olma uygun</span>
+            <h3>Hos geldin, Basak</h3>
+            <p>Hane: Celen Ailesi</p>
+            <div class="auth-grid">
+              <div>
+                <span>Rol</span>
+                <strong>Owner</strong>
+              </div>
+              <div>
+                <span>Uye</span>
+                <strong>4 kisi</strong>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="stats" id="dashboard">
+          <article class="stat-card positive">
+            <span>Aylik gelir</span>
+            <strong id="incomeTotal">0 TL</strong>
+          </article>
+          <article class="stat-card negative">
+            <span>Aylik gider</span>
+            <strong id="expenseTotal">0 TL</strong>
+          </article>
+          <article class="stat-card neutral">
+            <span>Yaklasan odemeler</span>
+            <strong id="paymentCount">0</strong>
+          </article>
+          <article class="stat-card accent">
+            <span>Kalan denge</span>
+            <strong id="balanceTotal">0 TL</strong>
+          </article>
+        </section>
+
+        <section class="panel-grid visible" data-panel="dashboard">
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Bugun</p>
+                <h3>Hane ozeti</h3>
+              </div>
+            </div>
+            <div class="timeline" id="activityList"></div>
+          </div>
+
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Odeme alarmi</p>
+                <h3>En yakin odemeler</h3>
+              </div>
+            </div>
+            <div class="payment-list" id="upcomingPayments"></div>
+          </div>
+        </section>
+
+        <section class="panel-grid" data-panel="transactions">
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Yeni kayit</p>
+                <h3>Gelir veya gider ekle</h3>
+              </div>
+            </div>
+
+            <form id="transactionForm" class="form-grid">
+              <input name="title" type="text" placeholder="Aciklama" required />
+              <select name="type" required>
+                <option value="income">Gelir</option>
+                <option value="expense">Gider</option>
+              </select>
+              <input name="amount" type="number" min="0" step="0.01" placeholder="Tutar" required />
+              <select name="member" required>
+                <option value="Basak">Basak</option>
+                <option value="Ahmet">Ahmet</option>
+                <option value="Elif">Elif</option>
+                <option value="Can">Can</option>
+              </select>
+              <button type="submit">Kaydi ekle</button>
+            </form>
+          </div>
+
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Kayitlar</p>
+                <h3>Son hareketler</h3>
+              </div>
+            </div>
+            <div class="table-list" id="transactionList"></div>
+          </div>
+        </section>
+
+        <section class="panel-grid" data-panel="payments">
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Yeni odeme</p>
+                <h3>Fatura veya borc ekle</h3>
+              </div>
+            </div>
+
+            <form id="paymentForm" class="form-grid">
+              <input name="title" type="text" placeholder="Odeme adi" required />
+              <input name="amount" type="number" min="0" step="0.01" placeholder="Tutar" required />
+              <input name="dueDate" type="date" required />
+              <select name="member" required>
+                <option value="Basak">Basak</option>
+                <option value="Ahmet">Ahmet</option>
+                <option value="Elif">Elif</option>
+                <option value="Can">Can</option>
+              </select>
+              <button type="submit">Odeme ekle</button>
+            </form>
+          </div>
+
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Takip</p>
+                <h3>Odeme listesi</h3>
+              </div>
+            </div>
+            <div class="payment-list" id="paymentList"></div>
+          </div>
+        </section>
+
+        <section class="panel-grid" data-panel="family">
+          <div class="surface">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Uyeler</p>
+                <h3>Aile ekibi</h3>
+              </div>
+            </div>
+            <div class="member-list" id="memberList"></div>
+          </div>
+
+          <div class="surface invite-card">
+            <p class="eyebrow">Davet akisi</p>
+            <h3>Mail ile uye daveti</h3>
+            <p>
+              Gercek backend oldugunda owner ve admin rolundeki kisiler e-posta adresiyle aile
+              uyelerini davet edebilecek.
+            </p>
+            <div class="invite-flow">
+              <span>1. Mail girisi</span>
+              <span>2. Davet linki</span>
+              <span>3. Kayit / giris</span>
+              <span>4. Hane katilimi</span>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

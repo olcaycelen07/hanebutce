@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}HaneButce{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="page-shell {% if not current_user %}page-shell-auth{% endif %}">
+      {% if current_user %}
+        <aside class="sidebar">
+          <div>
+            <p class="eyebrow">Aile Finans Uygulamasi</p>
+            <h1>HaneButce</h1>
+            <p class="sidebar-copy">Aile butcesi, odemeler ve ortak takip tek ekranda.</p>
+          </div>
+
+          <div class="sidebar-stack">
+            <div class="sidebar-card">
+              <span class="card-label">Kullanici</span>
+              <strong>{{ current_user["full_name"] }}</strong>
+              <span>{{ current_user["email"] }}</span>
+            </div>
+
+            {% if current_household %}
+              <div class="sidebar-card">
+                <span class="card-label">Hane</span>
+                <strong>{{ current_household["name"] }}</strong>
+                <span>Rol: {{ current_household["role"]|upper }}</span>
+              </div>
+            {% endif %}
+
+            <a class="ghost-link" href="{{ url_for('dashboard') }}">Panel</a>
+            <a class="ghost-link" href="{{ url_for('logout') }}">Cikis</a>
+          </div>
+        </aside>
+      {% endif %}
+
+      <main class="main-content {% if not current_user %}auth-layout{% endif %}">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="flash-stack">
+              {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </body>
+</html>

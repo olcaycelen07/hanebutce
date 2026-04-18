@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Giris Yap | HaneButce{% endblock %}
+
+{% block content %}
+  <section class="auth-box">
+    <div>
+      <p class="eyebrow">Mail ile giris</p>
+      <h2>Ortak aile butcesine giris yap</h2>
+      <p class="lead">Kaydol, kendi haneni kur ve aile uyelerini sisteme ekle.</p>
+    </div>
+
+    <form method="post" class="form-card single-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <label>
+        <span>E-posta</span>
+        <input type="email" name="email" required />
+      </label>
+      <label>
+        <span>Sifre</span>
+        <input type="password" name="password" required />
+      </label>
+      <button type="submit">Giris yap</button>
+      <p class="switch-link">Hesabin yok mu? <a href="{{ url_for('register') }}">Kayit ol</a></p>
+    </form>
+  </section>
+{% endblock %}

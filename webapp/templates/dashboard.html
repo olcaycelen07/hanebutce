@@ -1,0 +1,422 @@
+{% extends "base.html" %}
+
+{% block title %}Panel | HaneButce{% endblock %}
+
+{% block content %}
+  <section class="hero-card">
+    <div>
+      <p class="eyebrow">Canli panel</p>
+      <h2>{{ current_household["name"] }} butce merkezi</h2>
+      <p class="lead">Gelir, gider, odeme ve aile uyelerini tek yerde yonet.</p>
+    </div>
+    <div class="hero-meta">
+      <span class="metric-label">Plan</span>
+      <strong>Free MVP</strong>
+      <span>{{ members|length }} uye aktif</span>
+      <span>{{ month_label }}</span>
+    </div>
+  </section>
+
+  <section class="surface filter-surface">
+    <div class="section-head compact-head">
+      <div>
+        <p class="eyebrow">Rapor filtresi</p>
+        <h3>Secili donem: {{ month_label }}</h3>
+      </div>
+    </div>
+    <form method="get" action="{{ url_for('dashboard') }}" class="filter-form">
+      <label>
+        <span>Ay sec</span>
+        <input type="month" name="month" value="{{ selected_month }}" />
+      </label>
+      <button type="submit">Raporu guncelle</button>
+    </form>
+  </section>
+
+  <section class="stats-grid">
+    <article class="stat-card positive">
+      <span>Aylik gelir</span>
+      <strong>{{ income_total|currency }}</strong>
+    </article>
+    <article class="stat-card negative">
+      <span>Aylik gider</span>
+      <strong>{{ expense_total|currency }}</strong>
+    </article>
+    <article class="stat-card neutral">
+      <span>Net sonuc</span>
+      <strong>{{ balance_total|currency }}</strong>
+    </article>
+    <article class="stat-card accent">
+      <span>Bekleyen odemeler</span>
+      <strong>{{ bills|selectattr("status", "ne", "paid")|list|length }}</strong>
+    </article>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Aylik genel ozet</p>
+          <h3>{{ month_label }} gorunumu</h3>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <span>Ay neti</span>
+          <strong class="{{ 'good' if monthly_net >= 0 else 'bad' }}">{{ monthly_net|currency }}</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Odenen faturalar</span>
+          <strong>{{ paid_bill_total|currency }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Gelir kaynaklari</p>
+          <h3>En guclu kalemler</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        {% for item in top_income %}
+          <div class="report-row">
+            <div>
+              <strong>{{ item["category"] }}</strong>
+              <small>Gelir katkisi</small>
+            </div>
+            <strong class="good">{{ item["total"]|currency }}</strong>
+          </div>
+        {% else %}
+          <p class="empty-state">Bu ay icin gelir kaydi bulunmuyor.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Butce raporu</p>
+          <h3>Kategoriye gore gider dagilimi</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        {% for item in category_totals %}
+          <div class="report-row">
+            <div>
+              <strong>{{ item["category"] }}</strong>
+              <small>Toplam gider</small>
+            </div>
+            <strong>{{ item["total"]|currency }}</strong>
+          </div>
+        {% else %}
+          <p class="empty-state">Rapor olusmasi icin gider ekleyebilirsin.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Odeme ozeti</p>
+          <h3>Tekrarlayan planlar</h3>
+        </div>
+      </div>
+      <div class="mini-stats">
+        <div class="mini-stat">
+          <span>Aylik plan</span>
+          <strong>{{ recurring_bill_count }}</strong>
+        </div>
+        <div class="mini-stat">
+          <span>Bekleyen toplam</span>
+          <strong>{{ pending_bill_total|currency }}</strong>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Yeni gelir / gider</p>
+          <h3>Finans hareketi ekle</h3>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('add_transaction') }}" class="form-grid">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <label>
+          <span>Baslik</span>
+          <input type="text" name="title" required />
+        </label>
+        <label>
+          <span>Tur</span>
+          <select name="type" required>
+            <option value="income">Gelir</option>
+            <option value="expense">Gider</option>
+          </select>
+        </label>
+        <label>
+          <span>Tutar</span>
+          <input type="number" name="amount" min="0" step="0.01" required />
+        </label>
+        <label>
+          <span>Kategori</span>
+          <select name="category">
+            <option value="">Kategori sec</option>
+            {% for category in income_categories %}
+              <option value="{{ category['name'] }}">{{ category["name"] }}</option>
+            {% endfor %}
+            {% for category in expense_categories %}
+              <option value="{{ category['name'] }}">{{ category["name"] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Yeni kategori</span>
+          <input type="text" name="custom_category" placeholder="Ornek: Cocuk masrafi" />
+        </label>
+        <label>
+          <span>Uye</span>
+          <select name="member_user_id" required>
+            {% for member in members %}
+              <option value="{{ member['id'] }}">{{ member["full_name"] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="full">
+          <span>Not</span>
+          <textarea name="note" rows="3"></textarea>
+        </label>
+        <button type="submit">Kaydet</button>
+      </form>
+    </div>
+
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Yeni odeme</p>
+          <h3>Fatura veya borc ekle</h3>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('add_bill') }}" class="form-grid">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <label>
+          <span>Baslik</span>
+          <input type="text" name="title" required />
+        </label>
+        <label>
+          <span>Tutar</span>
+          <input type="number" name="amount" min="0" step="0.01" required />
+        </label>
+        <label>
+          <span>Kategori</span>
+          <select name="category">
+            <option value="">Kategori sec</option>
+            {% for category in bill_categories %}
+              <option value="{{ category['name'] }}">{{ category["name"] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Yeni kategori</span>
+          <input type="text" name="custom_category" placeholder="Ornek: Dogalgaz" />
+        </label>
+        <label>
+          <span>Son tarih</span>
+          <input type="date" name="due_date" required />
+        </label>
+        <label>
+          <span>Sorumlu uye</span>
+          <select name="member_user_id" required>
+            {% for member in members %}
+              <option value="{{ member['id'] }}">{{ member["full_name"] }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          <span>Tekrar</span>
+          <select name="frequency">
+            <option value="one_time">Tek sefer</option>
+            <option value="monthly">Her ay</option>
+          </select>
+        </label>
+        <label class="full">
+          <span>Not</span>
+          <textarea name="note" rows="3"></textarea>
+        </label>
+        <button type="submit">Odeme ekle</button>
+      </form>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Son hareketler</p>
+          <h3>Gelir / gider listesi</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        {% for item in transactions %}
+          <div class="list-row">
+            <div>
+              <strong>{{ item["title"] }}</strong>
+              <small>{{ item["member_name"] }} - {{ item["category"] }} - {{ item["transaction_date"] }}</small>
+            </div>
+            <strong class="{{ 'good' if item['type'] == 'income' else 'bad' }}">
+              {{ '+' if item['type'] == 'income' else '-' }} {{ item["amount"]|currency }}
+            </strong>
+          </div>
+        {% else %}
+          <p class="empty-state">Henuz hareket yok.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Odeme takibi</p>
+          <h3>Planlanan odemeler</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        {% for bill in bills %}
+          <div class="list-row">
+            <div>
+              <strong>{{ bill["title"] }}</strong>
+              <small>{{ bill["member_name"] }} - {{ bill["category"] }} - Son tarih {{ bill["due_date"] }}</small>
+            </div>
+            <div class="row-actions">
+              <span class="status {{ bill['status'] }}">{{ bill["status"]|upper }}</span>
+              {% if bill["frequency"] != "one_time" %}
+                <span class="status neutral">AYLIK</span>
+              {% endif %}
+              <strong>{{ bill["amount"]|currency }}</strong>
+              {% if bill["status"] != "paid" %}
+                <form method="post" action="{{ url_for('mark_bill_paid', bill_id=bill['id']) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+                  <button class="small-button" type="submit">Odendi</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <p class="empty-state">Henuz odeme yok.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Aile uyeleri</p>
+          <h3>Mevcut ekip</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        {% for member in members %}
+          <div class="list-row">
+            <div>
+              <strong>{{ member["full_name"] }}</strong>
+              <small>{{ member["email"] }}</small>
+            </div>
+            <span class="status neutral">{{ member["role"]|upper }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Davet sistemi</p>
+          <h3>Mail ile aile daveti olustur</h3>
+        </div>
+      </div>
+      <form method="post" action="{{ url_for('create_invitation') }}" class="form-grid">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+        <label class="full">
+          <span>E-posta</span>
+          <input type="email" name="email" placeholder="uye@mail.com" required />
+        </label>
+        <label>
+          <span>Rol</span>
+          <select name="role" required>
+            <option value="member">Member</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <button type="submit">Davet olustur</button>
+      </form>
+      <p class="helper-copy">
+        Sistem davet linki olusturur. Davet edilen kisi kayit olup kendi hesabiyla aileye katilir.
+      </p>
+    </div>
+  </section>
+
+  <section class="dashboard-grid">
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Bekleyen davetler</p>
+          <h3>Olusturulan linkler</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        {% for invite in invitations %}
+          <div class="invite-row">
+            <div>
+              <strong>{{ invite["email"] }}</strong>
+              <small>{{ invite["role"]|upper }} - {{ invite["status"]|upper }} - {{ invite["invited_by_name"] }}</small>
+            </div>
+            <div class="invite-link-group">
+              <a class="ghost-link ghost-link-light" href="{{ url_for('accept_invitation', token=invite['token'], _external=True) }}" target="_blank">
+                Linki ac
+              </a>
+              <code>{{ url_for('accept_invitation', token=invite['token'], _external=True) }}</code>
+            </div>
+          </div>
+        {% else %}
+          <p class="empty-state">Henuz davet olusturulmadi.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="surface">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Davet akisi</p>
+          <h3>Nasil calisir</h3>
+        </div>
+      </div>
+      <div class="stack-list">
+        <div class="report-row">
+          <div>
+            <strong>1. Davet olustur</strong>
+            <small>Aileye katilacak kisinin mail adresini gir.</small>
+          </div>
+        </div>
+        <div class="report-row">
+          <div>
+            <strong>2. Linki paylas</strong>
+            <small>Uretilen linki WhatsApp veya e-posta ile gonderebilirsin.</small>
+          </div>
+        </div>
+        <div class="report-row">
+          <div>
+            <strong>3. Hesapla kabul et</strong>
+            <small>Kullanici giris yaptiginda aileye tek tikla katilir.</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Hane Olustur | HaneButce{% endblock %}
+
+{% block content %}
+  <section class="auth-box">
+    <div>
+      <p class="eyebrow">Ilk kurulum</p>
+      <h2>Haneni olustur</h2>
+      <p class="lead">Aile adini belirle, kisa adresini sec ve paylasimli takibe basla.</p>
+    </div>
+
+    <form method="post" class="form-card single-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <label>
+        <span>Hane adi</span>
+        <input type="text" name="name" placeholder="Ornek: Celen Ailesi" required />
+      </label>
+      <label>
+        <span>Kisa adres</span>
+        <input type="text" name="slug" placeholder="celen-ailesi" required />
+      </label>
+      <button type="submit">Haneyi olustur</button>
+    </form>
+  </section>
+{% endblock %}

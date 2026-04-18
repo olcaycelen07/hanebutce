@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Kayit Ol | HaneButce{% endblock %}
+
+{% block content %}
+  <section class="auth-box">
+    <div>
+      <p class="eyebrow">Yeni hesap</p>
+      <h2>Aile finans uygulamani kur</h2>
+      <p class="lead">Bu ilk surumde mail ve sifre ile kayit olup haneni hemen olusturabilirsin.</p>
+    </div>
+
+    <form method="post" class="form-card single-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}" />
+      <label>
+        <span>Ad soyad</span>
+        <input type="text" name="full_name" required />
+      </label>
+      <label>
+        <span>E-posta</span>
+        <input type="email" name="email" required />
+      </label>
+      <label>
+        <span>Sifre</span>
+        <input type="password" name="password" required />
+      </label>
+      <button type="submit">Kayit ol</button>
+      <p class="switch-link">Zaten hesabin var mi? <a href="{{ url_for('login') }}">Giris yap</a></p>
+    </form>
+  </section>
+{% endblock %}
